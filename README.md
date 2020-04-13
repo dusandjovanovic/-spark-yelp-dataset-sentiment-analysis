@@ -4,7 +4,7 @@
 
 Task is located in a **separate runnable java class** and all associted code is located in the `.java` files which will be explained. Dataset files and helper text files are placed in the `resources` folder and loaded locally.
 
-The location of **output files** is the `outputs/` folder. Output files are named accordingly to the coresponding task.
+The location of output files is the outputs/ folder. Output files are named accordingly to the coresponding subtask such as `output-01.csv` is the output file of the first subtask and `output-main.csv` is the output file of the main task.
 
 ```
 /
@@ -16,12 +16,8 @@ The location of **output files** is the `outputs/` folder. Output files are name
 	Schemas.java
     <default_package>/
         Main.java
-        Task01RowCount.java
-        Task02ReviewTable.java
-        Task03BusinessTable.java
-        Task04GraphTable.java
-        Task05DBase.java
-        Task06DBase.java
+        Subtask01PolarityByReview.java
+        Subtask02TopBusinesses.java
   target/
   outputs/
   .cache-main
@@ -30,7 +26,7 @@ The location of **output files** is the `outputs/` folder. Output files are name
   pom.xml
 ```
 
-For example, the class which could be found in `Main.java` operates everything explained in the subtasks. All other task-related classes are in the `<default_package>`, on the other hand the `helpers` package has three utility classes with shared behaviours.
+For example, the class which could be found in `Main.java` operates everything explained in the subtasks, whereas a class named `Subtask01PolarityByReview.java` represents just a subtask portion of the required analysis. All other task-related classes are in the `<default_package>`, on the other hand the `helpers` package has three utility classes with shared behaviours.
 
 ```diff
 - Important* resource files are not present on this repository since they are 1GB+ in size!
