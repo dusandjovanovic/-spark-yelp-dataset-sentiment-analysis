@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.spark.api.java.function.FlatMapFunction;
@@ -27,6 +28,18 @@ public class DatasetUtils {
 	public static String decodeBase64(String bytes) {
 		String byteString = new String(Base64.decodeBase64(bytes.getBytes()));
 		return byteString;
+	}
+	
+	public static String[] ExtractAndPreprocess(String bytes, Map<String, Integer> stopwords) {
+		String review = decodeBase64(bytes);
+		String[] tokenized = review
+				.replaceAll("[^a-zA-Z ]", "")
+				.toLowerCase()
+				.split("\\s+");
+		
+		return Arrays.stream(tokenized)
+				.filter(word -> word.length() != 1 && !stopwords.containsKey(word))
+				.toArray(String[]::new);
 	}
 	
 	public static Long ExtractYear(String stamp) {
@@ -64,6 +77,17 @@ public class DatasetUtils {
         }
         
         return _result / counter;
+	}
+	
+	public static Integer IteratorSentiment(String[] iter, Map<String, Integer> sentimentMap) {
+		Integer _result = new Integer(0);
+		
+		for(String word : iter)
+			if (sentimentMap.containsKey(word))
+				_result += sentimentMap.get(word);
+			else continue;
+		
+        return _result;
 	}
 	
 	public static Tuple2<Double, Double> IteratorGeographicalCentroid(Iterable<Tuple2<Double, Double>> iter) {
