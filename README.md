@@ -150,9 +150,43 @@ public class Schemas {
 }
 ```
 
+### Important shared methods
+
+```java
+	public static String decodeBase64(String bytes) {
+		String byteString = new String(Base64.decodeBase64(bytes.getBytes()));
+		return byteString;
+	}
+	
+	public static String[] ExtractAndPreprocess(String bytes, Map<String, Integer> stopwords) {
+		String review = decodeBase64(bytes);
+		String[] tokenized = review
+			.replaceAll("[^a-zA-Z ]", "")
+			.toLowerCase()
+			.split("\\s+");
+		
+		return Arrays.stream(tokenized)
+			.filter(word -> word.length() != 1 && !stopwords.containsKey(word))
+			.toArray(String[]::new);
+	}
+
+	public static Integer IteratorSentiment(String[] iter, Map<String, Integer> sentimentMap) {
+		Integer _result = new Integer(0);
+		
+		for(String word : iter)
+			if (sentimentMap.containsKey(word))
+				_result += sentimentMap.get(word);
+			else continue;
+		
+       		return _result;
+	}
+```
+
+In a shred `DatasetUtils.java` class three new important methods are being introduced. First two methods are used to extract tokenized and preprocessed words from the dataset. The third method is used to calculate sentiment values of every review - based upon separate sentiment values of each word.
+
 ## Subtask 01 - Sentiment analysis per user-review
 
-In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
+This solution is presented in the class `Subtask01PolarityByReview.java`. In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
 
 ```java
 	Map<String, Integer> stopwordsMap = InputUtils.readLinesToMap(uriStopwrods);
@@ -209,7 +243,7 @@ The result can be found in the directory `output-01`. An excerpt from the output
 
 ## Subtask 02 - Top K businesses based on user-review sentiment
 
-In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
+This solution is presented in the class `Subtask02TopBusinesses.java`. In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
 
 ```java
 	Map<String, Integer> stopwordsMap = InputUtils.readLinesToMap(uriStopwrods);
@@ -266,3 +300,9 @@ The result can be found in the directory `output-02`. An excerpt from the output
 (4896,z6-reuC5BYf_Rth9gMBfgQ)
 (4892,PVTfzxu7of57zo1jZwEzkg)
 ```
+
+## Jointed subtasks in the same runnable class
+
+Both tasks have been joined in a class `Main.java`. This class has the same analogy as explained in the previous two segmentes except that it unites both operations and makes outputs for both analysis.
+
+The output folders are `output-main-reviews` and `output-main-topK` with small modification comapared to the previously explained.
