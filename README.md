@@ -4,7 +4,9 @@
 
 Task is located in a **separate runnable java class** and all associted code is located in the `.java` files which will be explained. Dataset files and helper text files are placed in the `resources` folder and loaded locally.
 
-The location of output files is the outputs/ folder. Output files are named accordingly to the coresponding subtask such as `output-01.csv` is the output file of the first subtask and `output-main.csv` is the output file of the main task.
+`Subtask01PolarityByReview.java` and `Subtask02TopBusinesses.java` are runnable classes for outputing review poalrities and top-k businesses with gathered polaraty values in mind. In the end, the class named `Main.java` incorporates both subtasks from separate classes into one job.
+
+The location of output files is the outputs/ folder. Output folders are named accordingly to the coresponding subtask such where `output-02` is the output folder of the Second subtask and `output-main-topK` is the output folder of the same subtask, just outputed from the shared class.
 
 ```
 /
@@ -13,6 +15,7 @@ The location of output files is the outputs/ folder. Output files are named acco
     helpers/
         DatasetUtils.java
         OutputUtils.java
+	InputUtils.java
 	Schemas.java
     <default_package>/
         Main.java
@@ -26,7 +29,7 @@ The location of output files is the outputs/ folder. Output files are named acco
   pom.xml
 ```
 
-For example, the class which could be found in `Main.java` operates everything explained in the subtasks, whereas a class named `Subtask01PolarityByReview.java` represents just a subtask portion of the required analysis. All other task-related classes are in the `<default_package>`, on the other hand the `helpers` package has three utility classes with shared behaviours.
+The class which could be found in `Main.java` operates everything explained in the subtasks, whereas a class named `Subtask01PolarityByReview.java` represents just a subtask portion of the required analysis. All other task-related classes are in the `<default_package>`, on the other hand the `helpers` package has three utility classes with shared behaviours.
 
 ```diff
 - Important* resource files are not present on this repository since they are 1GB+ in size!
@@ -45,6 +48,8 @@ For example, the class which could be found in `Main.java` operates everything e
 6) `Tuple2<Double, Double> IteratorGeographicalCentroid` - finding the centroid location
 7) `Function2<Integer, Iterator<String>, Iterator<String>> RemoveHeader` - clearing header rows from .csv files
 8) `FlatMapFunction<String, String> RemoveSpaces` - clearing spaces in strings
+9) `String[] ExtractAndPreprocess` - **tokenization of reviews** with extraction and preprocessing
+10) `Integer IteratorSentiment` - **finding the accumulated sentiment** of one review 
 
 In this report only signatures of mentioned methods are shown. Source code could be inspected for a detailed look.
 
@@ -59,6 +64,8 @@ public class DatasetUtils {
 	
 	public static String decodeBase64(String bytes);
 	
+	public static String[] ExtractAndPreprocess(String bytes, Map<String, Integer> stopwords);
+	
 	public static Long ExtractYear(String stamp);
 	
 	public static String ExtractTimestamp(String stamp);
@@ -67,11 +74,14 @@ public class DatasetUtils {
 	
 	public static Double IteratorAverage(Iterable<Long> iter);
 	
+	public static Integer IteratorSentiment(String[] iter, Map<String, Integer> sentimentMap);
+	
 	public static Tuple2<Double, Double> IteratorGeographicalCentroid(Iterable<Tuple2<Double, Double>> iter);
 	
 	public static Function2<Integer, Iterator<String>, Iterator<String>> RemoveHeader = new Function2<Integer, Iterator<String>, Iterator<String>>();
 	
 	public static FlatMapFunction<String, String> RemoveSpaces = new FlatMapFunction<String, String>();
+	
 }
 ```
 
@@ -99,6 +109,29 @@ public class OutputUtils {
 }
 ```
 
+Newly introduced class comapred to the first part of the project, `InputUtils` has methods for reading from text files into maps. These methods are being used to load stopwords and sentiment statistics. Important methods are:
+1) `String[] readLinesFromTextFile` - reading separated lines
+2) `Map<String, Integer> readLinesToMap` - reading lines into a basic map
+3) `Map<String, Integer> readLinesToDictionary` - reading lines into a map with concrete values (used for **sentiment data realted to a certain word**)
+
+
+```java
+package helpers;
+...
+
+public class InputUtils {
+	
+	private static String DELIMITER = "	";
+	private static Integer STOPWORD_PRESENT = 1;
+	
+	public static String[] readLinesFromTextFile(String filename);
+	
+	public static Map<String, Integer> readLinesToMap(String filename);
+	
+	public static Map<String, Integer> readLinesToDictionary(String filename);
+}
+```
+
 Lastly, `Schemas` is a static class holding database `StructType` schemas used in last two tasks.
 
 ```java
@@ -115,4 +148,59 @@ public class Schemas {
 	    ...
 	
 }
+```
+
+## Subtask 01 - Sentiment analysis per user-review
+
+In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
+
+```java
+	Map<String, Integer> stopwordsMap = InputUtils.readLinesToMap(uriStopwrods);
+	Map<String, Integer> sentimentMap = InputUtils.readLinesToDictionary(uriAFINN);
+
+	JavaRDD<String> rddReviews = context.textFile(uriReviewers);
+
+	JavaRDD<String> rddReviewsNoHeader = rddReviews
+		.mapPartitionsWithIndex(DatasetUtils.RemoveHeader, false);
+
+	JavaPairRDD<String[], String[]> rddReviewsText = rddReviewsNoHeader
+		.mapToPair(row -> new Tuple2<String[], String[]>(
+			Arrays.copyOfRange(row.split("	"), 0, 3),
+			DatasetUtils.ExtractAndPreprocess(row.split("	")[3], stopwordsMap)
+			));
+
+	JavaPairRDD<String, Integer> rddReviewsTextAffinity = rddReviewsText
+		.mapToPair(row -> new Tuple2<String, Integer>(
+			Arrays.toString(row._1),
+			DatasetUtils.IteratorSentiment(row._2, sentimentMap)
+			));
+
+	rddReviewsTextAffinity
+		.repartition(1)
+		.saveAsTextFile(output);
+
+	cleanup(context);
+```
+
+Afterwards, `JavaPairRDD` is formed representing first three columns for reviews which are `review_id`, `user_id` and lastly `business_id` and a newly preprocessed and tokenized review text with the help from `DatasetUtils.ExtractAndPreprocess`.
+
+Next thing needed is performing sentiment analysis based on tokenized arrays of extracted words in a form of mapping over every element with a shared method `DatasetUtils.IteratorSentiment` which will summarise sentiment values for all words in a certain review.
+
+Lastly, repartitioning is being done and the resulting RDD is outputted. An excerpt from the output data is shown below. We can see that the second value in the pair represent a number as a result of a **sentiment analysis**. For example, for a review with an id of `-lFvxYOmAuZMOelAs0dwgw` and a corespoinding business with an id of `XJGMgs9Kh4kcgf8Oskiewg` this value is `18`
+
+```sh
+([-lFvxYOmAuZMOelAs0dwgw, ---1lKK3aKOuomHnwAkAow, XJGMgs9Kh4kcgf8Oskiewg],18)
+([-nyKSlK-acm7Tkuobbw3MA, ---1lKK3aKOuomHnwAkAow, cHuA0Yb5oYwx1lrNVABqdQ],10)
+([-pk4s5YUD0grEEBt2QYlDA, ---1lKK3aKOuomHnwAkAow, bPcqucuuClxYrIM8xWoArg],8)
+([-UtICN8nUQ4g9qIHlQRrxw, ---1lKK3aKOuomHnwAkAow, rq5dgoksPHkJwJNQKlGQ7w],19)
+(["0cdjRebZLHYu-xyMSFKgMQ", ---1lKK3aKOuomHnwAkAow, R-McIj4Psxl1VlEacsXeRg],1)
+(["0hS9a57nL2qBTWoZCJBB2A", ---1lKK3aKOuomHnwAkAow, Vg1C_1eqwIwkZLIXGMTW3g],-2)
+(["12_4xbZupkMox3adrUCwwA", ---1lKK3aKOuomHnwAkAow, "5cbsjFtrntUAeUx51FaFTg"],6)
+(["1ikB-TEgwg2gigixDEDSuA", ---1lKK3aKOuomHnwAkAow, kosTPb88O4Q0XGbVbEOGCA],6)
+(["1PJpo48hSChCbriXEHGSjw", ---1lKK3aKOuomHnwAkAow, yp2nRId4v-bDtrYl5A3F-g],-5)
+(["23MKMYyMrw7mRrNlC2hwBA", ---1lKK3aKOuomHnwAkAow, sZsJooAzpKqOvDysphkqpQ],7)
+(["2AXKTUbIkwuP8wcvzSt7Tg", ---1lKK3aKOuomHnwAkAow, hubbaEcYPYEZu5Ziz6i0lw],-2)
+(["2D3lifCSaaKLr73PK27eyg", ---1lKK3aKOuomHnwAkAow, slVkMoNTCGI2rOhMaL5u5A],1)
+(["3cCBqmhi0ldJR31k5XYX6g", ---1lKK3aKOuomHnwAkAow, YbKjkJCD3lcQcLSMNKglKg],9)
+(["3R2e-knpN5lCHu2LVk6hsQ", ---1lKK3aKOuomHnwAkAow, "5aeR9KcboZmhDZlFscnYRA"],9)
 ```
