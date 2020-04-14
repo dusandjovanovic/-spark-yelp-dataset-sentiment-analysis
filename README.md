@@ -186,7 +186,9 @@ Afterwards, `JavaPairRDD` is formed representing first three columns for reviews
 
 Next thing needed is performing sentiment analysis based on tokenized arrays of extracted words in a form of mapping over every element with a shared method `DatasetUtils.IteratorSentiment` which will summarise sentiment values for all words in a certain review.
 
-Lastly, repartitioning is being done and the resulting RDD is outputted. An excerpt from the output data is shown below. We can see that the second value in the pair represent a number as a result of a **sentiment analysis**. For example, for a review with an id of `-lFvxYOmAuZMOelAs0dwgw` and a corespoinding business with an id of `XJGMgs9Kh4kcgf8Oskiewg` this value is `18`
+Lastly, repartitioning is being done and the resulting RDD is outputted. 
+
+The result can be found in the directory `output-01`. An excerpt from the output data is shown below. We can see that the second value in the pair represent a number as a result of a **sentiment analysis**. For example, for a review with an id of `-lFvxYOmAuZMOelAs0dwgw` and a corespoinding business with an id of `XJGMgs9Kh4kcgf8Oskiewg` this value is `18`
 
 ```sh
 ([-lFvxYOmAuZMOelAs0dwgw, ---1lKK3aKOuomHnwAkAow, XJGMgs9Kh4kcgf8Oskiewg],18)
@@ -203,4 +205,64 @@ Lastly, repartitioning is being done and the resulting RDD is outputted. An exce
 (["2D3lifCSaaKLr73PK27eyg", ---1lKK3aKOuomHnwAkAow, slVkMoNTCGI2rOhMaL5u5A],1)
 (["3cCBqmhi0ldJR31k5XYX6g", ---1lKK3aKOuomHnwAkAow, YbKjkJCD3lcQcLSMNKglKg],9)
 (["3R2e-knpN5lCHu2LVk6hsQ", ---1lKK3aKOuomHnwAkAow, "5aeR9KcboZmhDZlFscnYRA"],9)
+```
+
+## Subtask 02 - Top K businesses based on user-review sentiment
+
+In order to begin this data analysis it is neccessary to load both stopwords and sentiment information for certain words. Dictionaries in a form of a `hashed map` are being used for both.
+
+```java
+	Map<String, Integer> stopwordsMap = InputUtils.readLinesToMap(uriStopwrods);
+	Map<String, Integer> sentimentMap = InputUtils.readLinesToDictionary(uriAFINN);
+
+	JavaRDD<String> rddReviews = context.textFile(uriReviewsers);
+
+	JavaRDD<String> rddReviewsNoHeader = rddReviews
+		.mapPartitionsWithIndex(DatasetUtils.RemoveHeader, false);
+
+	JavaPairRDD<String[], String[]> rddReviewsText = rddReviewsNoHeader
+		.mapToPair(row -> new Tuple2<String[], String[]>(
+				Arrays.copyOfRange(row.split("	"), 0, 3),
+				DatasetUtils.ExtractAndPreprocess(row.split("	")[3], stopwordsMap)
+			));
+
+	JavaPairRDD<String, Integer> rddReviewsTextAffinity = rddReviewsText
+		.mapToPair(row -> new Tuple2<String, Integer>(
+				row._1[2],
+				DatasetUtils.IteratorSentiment(row._2, sentimentMap)
+			));
+
+	JavaPairRDD<Integer, String> rddReviewsTextAffinityByBusinesses = rddReviewsTextAffinity
+		.reduceByKey((a, b) -> a + b)
+		.mapToPair(row -> new Tuple2<Integer, String>(row._2, row._1))
+		.sortByKey(false);
+
+	JavaRDD<Tuple2<Integer,String>> rddReviewsTextAffinityByBusinessesTopK = context
+		.parallelize(rddReviewsTextAffinityByBusinesses.take(K));
+
+	rddReviewsTextAffinityByBusinessesTopK
+		.repartition(1)
+		.saveAsTextFile(output);
+
+```
+
+Similarly like in a case of a previous subtask, `JavaPairRDD` is formed representing first three columns for reviews which are `review_id`, `user_id` and lastly `business_id` and a newly preprocessed and tokenized review text with the help from `DatasetUtils.ExtractAndPreprocess`. In a same fashion, mapping is done upon every element with a shared method `DatasetUtils.IteratorSentiment` which will summarise sentiment values for all words in a certain review.
+
+Important information for this task is the `bussines_id` together with the **`sentiment values`** of reviews associated to it, hence the yet another mapping to a JavaPairRDD<Integer, String> RDD is done which relies on the Tuple2 object for every entry. After these tuples are made, reduction by key is used to **accumulate review sentiment values coming from the same business source**. Lastly, sorting is done by the accumulated values - upon the whole RDD sorted in descending order by accumulated sentiment value.
+
+Lastly, repartitioning is being done and the resulting RDD is outputted. 
+
+The result can be found in the directory `output-02`. An excerpt from the output data is shown below. The first value in the pair represent a number as a result of an **accumulated sentiment analysis** for each business - based on an `business_id`. Top-K values are being extracted and shown in descending order.
+
+```sh
+(7395,"4JNXUYY8wbaaDmk3BPzlWw")
+(6622,RESDUcs7fIiihp38-d6_6g)
+(5910,igHYkXZMLAc9UdV5VnR_AA)
+(5279,A5Rkh7UymKm0_Rxm9K2PJw)
+(5265,k1QpHAkzKTrFYfk6u--VgQ)
+(5211,"5LNZ67Yw9RD6nf4_UhXOjw")
+(5038,IMLrj2klosTFvPRLv56cng)
+(4924,"7sPNbCx7vGAaH7SbNPZ6oA")
+(4896,z6-reuC5BYf_Rth9gMBfgQ)
+(4892,PVTfzxu7of57zo1jZwEzkg)
 ```
