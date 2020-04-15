@@ -2,11 +2,13 @@
 
 ## Project structure
 
-Task is located in a **separate runnable java class** and all associted code is located in the `.java` files which will be explained. Dataset files and helper text files are placed in the `resources` folder and loaded locally.
+Both subtasks are combined and written in a **separate runnable java class** as a signle executable, but are also present in two separate classes.
 
-`Subtask01PolarityByReview.java` and `Subtask02TopBusinesses.java` are runnable classes for outputing review poalrities and top-k businesses with gathered polaraty values in mind. In the end, the class named `Main.java` incorporates both subtasks from separate classes into one job.
+All associted code is located in three `.java` files which will be explained. Helper text files (`AFINN-111.txt`, `stopwords.txt`) are placed in the `resources` folder and loaded internaly meaning that these files are pre-bundled. Additionally, dataset file `yelp_top_reviewers_with_reviews.csv` should be placed in the `/data` directory.
 
-The location of output files is the outputs/ folder. Output folders are named accordingly to the coresponding subtask such where `output-02` is the output folder of the Second subtask and `output-main-topK` is the output folder of the same subtask, just outputed from the shared class.
+`Subtask01PolarityByReview.java` and `Subtask02TopBusinesses.java` are classes for analysing and outputing __review polarities (sentiment analysis)__ and __top-k businesses based on analysis__ with gathered polaraty values in mind. The class named `Main.java` incorporates both subtasks from previously mentioned classes into one executable.
+
+__Output folders__ are named accordingly to the coresponding subtask such where `output-02` is the output folder of the second subtask originating from the class `Subtask02TopBusinesses.java`. On the other hand `output-main-reviews` and `output-main-topK` are output folders for both the first and the second subtask, just outputed from the shared class `Main.java`. All of these folders can be found on the repository and examined.
 
 ```
 /
@@ -22,19 +24,21 @@ The location of output files is the outputs/ folder. Output folders are named ac
         Subtask01PolarityByReview.java
         Subtask02TopBusinesses.java
   target/
-  outputs/
+  data/
+  	yelp_top_reviewers_with_reviews.csv
+  SentimentAnalysis.jar
   .cache-main
   .classpath
   .project
   pom.xml
 ```
 
-The class which could be found in `Main.java` operates everything explained in the subtasks, whereas a class named `Subtask01PolarityByReview.java` represents just a subtask portion of the required analysis. All other task-related classes are in the `<default_package>`, on the other hand the `helpers` package has three utility classes with shared behaviours.
+All task-related classes are in the `<default_package>`, on the other hand the `helpers` package has four utility classes with shared behaviours.
 
 ```diff
 - Important* resource files are not present on this repository since they are 1GB+ in size!
 
-+ All dataset resources should be imported in the /resources folder.
++ All dataset resources should be placed in the /data folder.
 ```
 
 ## Shared behaviours and classes
