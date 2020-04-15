@@ -223,21 +223,21 @@ Last step involves repartitioning and the resulting RDD being written to an outp
 The result can be found in the directory `output-01`. An excerpt from the output data is shown below. We can see that the second value in the pair represent an integer as a result of previous **sentiment analysis**, whereas the first value is a tuple in the form of (`review_id`, `user_id`, `business_id`). For example, for a review with an id of `-lFvxYOmAuZMOelAs0dwgw` and a corespoinding business with an id of `XJGMgs9Kh4kcgf8Oskiewg` the review's sentiment value is calculated to be `18`
 
 ```
-	([-lFvxYOmAuZMOelAs0dwgw, ---1lKK3aKOuomHnwAkAow, XJGMgs9Kh4kcgf8Oskiewg],18)
-	([-nyKSlK-acm7Tkuobbw3MA, ---1lKK3aKOuomHnwAkAow, cHuA0Yb5oYwx1lrNVABqdQ],10)
-	([-pk4s5YUD0grEEBt2QYlDA, ---1lKK3aKOuomHnwAkAow, bPcqucuuClxYrIM8xWoArg],8)
-	([-UtICN8nUQ4g9qIHlQRrxw, ---1lKK3aKOuomHnwAkAow, rq5dgoksPHkJwJNQKlGQ7w],19)
-	(["0cdjRebZLHYu-xyMSFKgMQ", ---1lKK3aKOuomHnwAkAow, R-McIj4Psxl1VlEacsXeRg],1)
-	(["0hS9a57nL2qBTWoZCJBB2A", ---1lKK3aKOuomHnwAkAow, Vg1C_1eqwIwkZLIXGMTW3g],-2)
-	(["12_4xbZupkMox3adrUCwwA", ---1lKK3aKOuomHnwAkAow, "5cbsjFtrntUAeUx51FaFTg"],6)
-	(["1ikB-TEgwg2gigixDEDSuA", ---1lKK3aKOuomHnwAkAow, kosTPb88O4Q0XGbVbEOGCA],6)
-	(["1PJpo48hSChCbriXEHGSjw", ---1lKK3aKOuomHnwAkAow, yp2nRId4v-bDtrYl5A3F-g],-5)
-	(["23MKMYyMrw7mRrNlC2hwBA", ---1lKK3aKOuomHnwAkAow, sZsJooAzpKqOvDysphkqpQ],7)
-	(["2AXKTUbIkwuP8wcvzSt7Tg", ---1lKK3aKOuomHnwAkAow, hubbaEcYPYEZu5Ziz6i0lw],-2)
-	(["2D3lifCSaaKLr73PK27eyg", ---1lKK3aKOuomHnwAkAow, slVkMoNTCGI2rOhMaL5u5A],1)
-	(["3cCBqmhi0ldJR31k5XYX6g", ---1lKK3aKOuomHnwAkAow, YbKjkJCD3lcQcLSMNKglKg],9)
-	(["3R2e-knpN5lCHu2LVk6hsQ", ---1lKK3aKOuomHnwAkAow, "5aeR9KcboZmhDZlFscnYRA"],9)
-	...
+([-lFvxYOmAuZMOelAs0dwgw, ---1lKK3aKOuomHnwAkAow, XJGMgs9Kh4kcgf8Oskiewg],18)
+([-nyKSlK-acm7Tkuobbw3MA, ---1lKK3aKOuomHnwAkAow, cHuA0Yb5oYwx1lrNVABqdQ],10)
+([-pk4s5YUD0grEEBt2QYlDA, ---1lKK3aKOuomHnwAkAow, bPcqucuuClxYrIM8xWoArg],8)
+([-UtICN8nUQ4g9qIHlQRrxw, ---1lKK3aKOuomHnwAkAow, rq5dgoksPHkJwJNQKlGQ7w],19)
+(["0cdjRebZLHYu-xyMSFKgMQ", ---1lKK3aKOuomHnwAkAow, R-McIj4Psxl1VlEacsXeRg],1)
+(["0hS9a57nL2qBTWoZCJBB2A", ---1lKK3aKOuomHnwAkAow, Vg1C_1eqwIwkZLIXGMTW3g],-2)
+(["12_4xbZupkMox3adrUCwwA", ---1lKK3aKOuomHnwAkAow, "5cbsjFtrntUAeUx51FaFTg"],6)
+(["1ikB-TEgwg2gigixDEDSuA", ---1lKK3aKOuomHnwAkAow, kosTPb88O4Q0XGbVbEOGCA],6)
+(["1PJpo48hSChCbriXEHGSjw", ---1lKK3aKOuomHnwAkAow, yp2nRId4v-bDtrYl5A3F-g],-5)
+(["23MKMYyMrw7mRrNlC2hwBA", ---1lKK3aKOuomHnwAkAow, sZsJooAzpKqOvDysphkqpQ],7)
+(["2AXKTUbIkwuP8wcvzSt7Tg", ---1lKK3aKOuomHnwAkAow, hubbaEcYPYEZu5Ziz6i0lw],-2)
+(["2D3lifCSaaKLr73PK27eyg", ---1lKK3aKOuomHnwAkAow, slVkMoNTCGI2rOhMaL5u5A],1)
+(["3cCBqmhi0ldJR31k5XYX6g", ---1lKK3aKOuomHnwAkAow, YbKjkJCD3lcQcLSMNKglKg],9)
+(["3R2e-knpN5lCHu2LVk6hsQ", ---1lKK3aKOuomHnwAkAow, "5aeR9KcboZmhDZlFscnYRA"],9)
+...
 ```
 
 ## Subtask 02 - Top K businesses based on user-review sentiment
@@ -288,16 +288,16 @@ Last step involves repartitioning and the resulting RDD being written to an outp
 The result can be found in the directory `output-02`. Complete output data is shown below in the case of 'K = 10'. The first value in the pair represent a number as a result of an **accumulated sentiment analysis** for each business - based on an `business_id`. Top-K values are being extracted and shown in descending order where the second value in each pair is the mentioned `business_id`.
 
 ```
-	(7395,"4JNXUYY8wbaaDmk3BPzlWw")
-	(6622,RESDUcs7fIiihp38-d6_6g)
-	(5910,igHYkXZMLAc9UdV5VnR_AA)
-	(5279,A5Rkh7UymKm0_Rxm9K2PJw)
-	(5265,k1QpHAkzKTrFYfk6u--VgQ)
-	(5211,"5LNZ67Yw9RD6nf4_UhXOjw")
-	(5038,IMLrj2klosTFvPRLv56cng)
-	(4924,"7sPNbCx7vGAaH7SbNPZ6oA")
-	(4896,z6-reuC5BYf_Rth9gMBfgQ)
-	(4892,PVTfzxu7of57zo1jZwEzkg)
+(7395,"4JNXUYY8wbaaDmk3BPzlWw")
+(6622,RESDUcs7fIiihp38-d6_6g)
+(5910,igHYkXZMLAc9UdV5VnR_AA)
+(5279,A5Rkh7UymKm0_Rxm9K2PJw)
+(5265,k1QpHAkzKTrFYfk6u--VgQ)
+(5211,"5LNZ67Yw9RD6nf4_UhXOjw")
+(5038,IMLrj2klosTFvPRLv56cng)
+(4924,"7sPNbCx7vGAaH7SbNPZ6oA")
+(4896,z6-reuC5BYf_Rth9gMBfgQ)
+(4892,PVTfzxu7of57zo1jZwEzkg)
 ```
 
 ## Jointed subtasks in the same runnable class
