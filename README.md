@@ -222,7 +222,7 @@ Last step involves repartitioning and the resulting RDD being written to an outp
 
 The result can be found in the directory `output-01`. An excerpt from the output data is shown below. We can see that the second value in the pair represent an integer as a result of previous **sentiment analysis**, whereas the first value is a tuple in the form of (`review_id`, `user_id`, `business_id`). For example, for a review with an id of `-lFvxYOmAuZMOelAs0dwgw` and a corespoinding business with an id of `XJGMgs9Kh4kcgf8Oskiewg` the review's sentiment value is calculated to be `18`
 
-```javascript
+```
 	([-lFvxYOmAuZMOelAs0dwgw, ---1lKK3aKOuomHnwAkAow, XJGMgs9Kh4kcgf8Oskiewg],18)
 	([-nyKSlK-acm7Tkuobbw3MA, ---1lKK3aKOuomHnwAkAow, cHuA0Yb5oYwx1lrNVABqdQ],10)
 	([-pk4s5YUD0grEEBt2QYlDA, ---1lKK3aKOuomHnwAkAow, bPcqucuuClxYrIM8xWoArg],8)
@@ -237,7 +237,7 @@ The result can be found in the directory `output-01`. An excerpt from the output
 	(["2D3lifCSaaKLr73PK27eyg", ---1lKK3aKOuomHnwAkAow, slVkMoNTCGI2rOhMaL5u5A],1)
 	(["3cCBqmhi0ldJR31k5XYX6g", ---1lKK3aKOuomHnwAkAow, YbKjkJCD3lcQcLSMNKglKg],9)
 	(["3R2e-knpN5lCHu2LVk6hsQ", ---1lKK3aKOuomHnwAkAow, "5aeR9KcboZmhDZlFscnYRA"],9)
-...
+	...
 ```
 
 ## Subtask 02 - Top K businesses based on user-review sentiment
@@ -287,7 +287,7 @@ Last step involves repartitioning and the resulting RDD being written to an outp
 
 The result can be found in the directory `output-02`. Complete output data is shown below in the case of 'K = 10'. The first value in the pair represent a number as a result of an **accumulated sentiment analysis** for each business - based on an `business_id`. Top-K values are being extracted and shown in descending order where the second value in each pair is the mentioned `business_id`.
 
-```javascript
+```
 	(7395,"4JNXUYY8wbaaDmk3BPzlWw")
 	(6622,RESDUcs7fIiihp38-d6_6g)
 	(5910,igHYkXZMLAc9UdV5VnR_AA)
