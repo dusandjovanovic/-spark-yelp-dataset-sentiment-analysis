@@ -21,25 +21,26 @@ public class Main {
 	
 	private static String appName = "Main";
 	
-	private static String uriReviewsers = "src/main/resources/yelp_top_reviewers_with_reviews.csv";
+	private static String uriReviewsers = "data/yelp_top_reviewers_with_reviews.csv";
 	private static String uriStopwrods = "src/main/resources/stopwords.txt";
 	private static String uriAFINN = "src/main/resources/AFINN-111.txt";
 	
 	private static String outputReviews = "./output-main-reviews";
 	private static String outputTopK = "./output-main-topK";
 	
-	private static Integer K = 10;
+	private static Integer K;
 
 	public static void main(String[] args) throws Exception {
 		SparkConf config = new SparkConf().setAppName(appName).setMaster("local[*]");
 		SparkContext sparkContext = new SparkContext(config);
 		JavaSparkContext context = new JavaSparkContext(sparkContext);
 		
+		K = Integer.valueOf(args[0]);
+		
 		Map<String, Integer> stopwordsMap = InputUtils.readLinesToMap(uriStopwrods);
 		Map<String, Integer> sentimentMap = InputUtils.readLinesToDictionary(uriAFINN);
 		
 		JavaRDD<String> rddReviews = context.textFile(uriReviewsers);
-		JavaRDD<String> rddAfinn = context.textFile(uriAFINN);
 		
 		JavaRDD<String> rddReviewsNoHeader = rddReviews
 				.mapPartitionsWithIndex(DatasetUtils.RemoveHeader, false);

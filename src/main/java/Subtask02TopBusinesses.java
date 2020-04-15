@@ -21,7 +21,7 @@ public class Subtask02TopBusinesses {
 	
 	private static String appName = "Subtask02TopBusinesses";
 	
-	private static String uriReviewsers = "src/main/resources/yelp_top_reviewers_with_reviews.csv";
+	private static String uriReviewsers = "data/yelp_top_reviewers_with_reviews.csv";
 	private static String uriStopwrods = "src/main/resources/stopwords.txt";
 	private static String uriAFINN = "src/main/resources/AFINN-111.txt";
 	
