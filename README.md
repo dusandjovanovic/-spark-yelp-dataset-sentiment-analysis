@@ -8,7 +8,7 @@ All associted code is located in three `.java` files which will be explained. He
 
 `Subtask01PolarityByReview.java` and `Subtask02TopBusinesses.java` are classes for analysing and outputing __review polarities (sentiment analysis)__ and __top-k businesses based on analysis__ with gathered polaraty values in mind. The class named `Main.java` incorporates both subtasks from previously mentioned classes into one executable.
 
-__Output folders__ are named accordingly to the coresponding subtask such where `output-02` is the output folder of the second subtask originating from the class `Subtask02TopBusinesses.java`. On the other hand `output-main-reviews` and `output-main-topK` are output folders for both the first and the second subtask, just outputed from the shared class `Main.java`. All of these folders can be found on the repository and examined.
+__Output folders__ are named accordingly to the coresponding subtask such where `output-02` is the output folder of the second subtask originating from the class `Subtask02TopBusinesses.java`. On the other hand `output-main-reviews` and `output-main-topK` are output folders for both the first and the second subtask, just outputed from the shared class `Main.java`. All of these output folders are present on the repository and can be examined.
 
 ```
 /
